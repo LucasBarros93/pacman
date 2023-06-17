@@ -30,6 +30,7 @@ int main()
     Cols=0;
     Lins=0;
 
+    //NÃO COMPREENDO NADA
     initscr();
     cbreak();
     noecho();
@@ -37,6 +38,8 @@ int main()
     nodelay(stdscr, TRUE);
     curs_set (0);  // Hide Cursor 
     clrscr();
+    //ATE AQUI
+
     while (true) 
     {
         for (i=0; i <= Lins; i++)
