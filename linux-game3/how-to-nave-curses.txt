@@ -1,0 +1,30 @@
+How to compile: CURSES with CLRSCR
+==================================
+
+1. Install Curses Library (for developement)
+   sudo apt-get install libncurses5-dev libncursesw5-dev
+
+2. Code: 
+
+#include <curses.h>
+
+int  main(void)
+{
+     initscr();
+     \\ Code 
+     endwin();
+}
+
+3. Compile: 
+   gcc nave.c -onave -lcurses
+
+IMPORTANTE:
+- Note o uso do printf com "\n\r" para pular linha
+- Note o uso do printf com "\r" que reposiciona o cursor no inicio da linha,
+  sem descer para linha abaixo
+
+ 
+=======
+FOsorio
+ 2023
+=======
