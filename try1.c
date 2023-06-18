@@ -13,6 +13,8 @@ char tab[ROWS][COLS];
 int posX = 1;
 int posY = 1;
 
+char direction = 's';
+
 void init_tab(void){
     for(int i=0; i<ROWS; i++){
         for(int j=0; j<COLS; j++){
@@ -38,15 +40,49 @@ void print_tab(void){
             printf("%c", tab[i][j]);
         }
 
-        printf("\n");
+        printf("\n\r");
     }
 }
 
 void move_pacman(){
-    tab[posY][posX] = '.';
-    
-    posX += 1;
-    tab[posY][posX] = 'C';
+    if(direction == 'd'){
+        if(tab[posY][posX+1] != '#'){
+            tab[posY][posX] = '.';
+            
+            posX += 1;
+            tab[posY][posX] = 'C';
+        }
+    }
+
+    if(direction == 'a'){
+
+        if(tab[posY][posX-1] != '#'){
+            tab[posY][posX] = '.';
+            
+            posX -= 1;
+            tab[posY][posX] = 'C';
+        }
+    }
+
+    if(direction == 's'){
+
+        if(tab[posY+1][posX] != '#'){
+            tab[posY][posX] = '.';
+            
+            posY += 1;
+            tab[posY][posX] = 'C';
+        }
+    }
+
+    if(direction == 'w'){
+
+        if(tab[posY-1][posX] != '#'){
+            tab[posY][posX] = '.';
+            
+            posY -= 1;
+            tab[posY][posX] = 'C';
+        }
+    }
 }
 
 void main(void){
@@ -66,11 +102,13 @@ void main(void){
     init_tab();
     print_tab();
 
-    while(posX < COLS){
+    while(1){
 
         clear();
         //refresh();
         usleep(SPEED);
+
+        direction = getch();
 
         move_pacman();
         print_tab();
