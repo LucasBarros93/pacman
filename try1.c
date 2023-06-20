@@ -55,7 +55,7 @@ void init_tab(void){
 }
 
 
-// usar ⣿ um dia
+// usar ⣿ um dia pra parede, ᗣ pra fantasma, ᗧ ᗤ pro pacman, ·····•····· pros pontinhos
 void print_tab(void){
     for(int i=0; i<ROWS; i++){
         for(int j=0; j<COLS; j++){
