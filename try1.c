@@ -5,35 +5,57 @@
 
 #define SPEED  100000
 
-#define ROWS  10
-#define COLS  50
+#define ROWS  31
+#define COLS  29
 
 char tab[ROWS][COLS];
 
-int posX = 1;
-int posY = 1;
+int posX = 14;
+int posY = 23;
 
 char direction = 's';
 
 void init_tab(void){
-    for(int i=0; i<ROWS; i++){
-        for(int j=0; j<COLS; j++){
-            tab[i][j] = '.';
+    FILE *fp;
+    long lSize;
+    char *buffer;
 
-            if(i == 0 || i == ROWS-1){
-                tab[i][j] = '#';
-            }
-            if(j == 0 || j == COLS-1){
-                tab[i][j] = '#';
-            }
+    fp = fopen ( "map.txt" , "rb" );
+    if( !fp ) perror("map.txt"),exit(1);
 
-            if(i == posY && j == posX){
-                tab[i][j] = 'C';
-            }
+    fseek( fp , 0L , SEEK_END);
+    lSize = ftell( fp );
+    rewind( fp );
+
+    /* allocate memory for entire content */
+    buffer = calloc( 1, lSize+1 );
+    if( !buffer ) fclose(fp),fputs("memory alloc fails",stderr),exit(1);
+
+    /* copy the file into the buffer */
+    if( 1!=fread( buffer , lSize, 1 , fp) )
+    fclose(fp),free(buffer),fputs("entire read fails",stderr),exit(1);
+
+    /* do your work here, buffer is a string contains the whole text */
+
+    int j=0, k=0;
+
+    for(int i=0; i<lSize; i++){
+        if(buffer[i] == '\n'){
+            tab[j][k] = ' ';
+            j++;
+            k=0;
+            continue;
         }
+        tab[j][k] = buffer[i];
+        k++;
     }
+
+    fclose(fp);
+    free(buffer);
 }
 
+
+// usar ⣿ um dia
 void print_tab(void){
     for(int i=0; i<ROWS; i++){
         for(int j=0; j<COLS; j++){
@@ -47,7 +69,7 @@ void print_tab(void){
 void move_pacman(){
     if(direction == 'd'){
         if(tab[posY][posX+1] != '#'){
-            tab[posY][posX] = '.';
+            tab[posY][posX] = ' ';
             
             posX += 1;
             tab[posY][posX] = 'C';
@@ -57,7 +79,7 @@ void move_pacman(){
     if(direction == 'a'){
 
         if(tab[posY][posX-1] != '#'){
-            tab[posY][posX] = '.';
+            tab[posY][posX] = ' ';
             
             posX -= 1;
             tab[posY][posX] = 'C';
@@ -67,7 +89,7 @@ void move_pacman(){
     if(direction == 's'){
 
         if(tab[posY+1][posX] != '#'){
-            tab[posY][posX] = '.';
+            tab[posY][posX] = ' ';
             
             posY += 1;
             tab[posY][posX] = 'C';
@@ -77,7 +99,7 @@ void move_pacman(){
     if(direction == 'w'){
 
         if(tab[posY-1][posX] != '#'){
-            tab[posY][posX] = '.';
+            tab[posY][posX] = ' ';
             
             posY -= 1;
             tab[posY][posX] = 'C';
