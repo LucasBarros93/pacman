@@ -6,7 +6,7 @@
 #define SPEED  100000
 
 #define ROWS  31
-#define COLS  29
+#define COLS  29  //TEM QUE TA VENDO ISSO AQUI, FAZER JUNTO COM A V2 DA init_tab()
 
 char tab[ROWS][COLS];
 
@@ -72,6 +72,8 @@ void move_pacman(){
             tab[posY][posX] = ' ';
             
             posX += 1;
+            if(posX > COLS-2) posX = 0;
+
             tab[posY][posX] = 'C';
         }
     }
@@ -82,6 +84,8 @@ void move_pacman(){
             tab[posY][posX] = ' ';
             
             posX -= 1;
+            if(posX < 0) posX = COLS-2; //TEM QUE AJUSTAR O NUMERO DE COLUNAS
+
             tab[posY][posX] = 'C';
         }
     }
