@@ -7,7 +7,7 @@
 #define RESETCOLOR "\x1B[0m"
 
 #define ROWS  31
-#define COLS  29  //TEM QUE TA VENDO ISSO AQUI, FAZER JUNTO COM A V2 DA init_tab()
+#define COLS  28  //TEM QUE TA VENDO ISSO AQUI, FAZER JUNTO COM A V2 DA init_tab()
 
 char tab[ROWS][COLS];
 
@@ -25,34 +25,15 @@ void init_tab(void){
     if( !fp ) perror("map.txt"),exit(1);
 
     fseek( fp , 0L , SEEK_END);
-    lSize = ftell( fp );
     rewind( fp );
 
-    /* allocate memory for entire content */
-    buffer = calloc( 1, lSize+1 );
-    if( !buffer ) fclose(fp),fputs("memory alloc fails",stderr),exit(1);
-
-    /* copy the file into the buffer */
-    if( 1!=fread( buffer , lSize, 1 , fp) )
-    fclose(fp),free(buffer),fputs("entire read fails",stderr),exit(1);
-
-    /* do your work here, buffer is a string contains the whole text */
-
-    int j=0, k=0;
-
-    for(int i=0; i<lSize; i++){
-        if(buffer[i] == '\n'){
-            tab[j][k] = ' ';
-            j++;
-            k=0;
-            continue;
-        }
-        tab[j][k] = buffer[i];
-        k++;
+    int i = 0;
+    while (fgets(tab[i], 30, fp)){
+        i++;
     }
 
+
     fclose(fp);
-    free(buffer);
 }
 
 
@@ -120,23 +101,34 @@ void print_tab(void){
 
 void move_pacman(){
     if(direction == 'd'){
-        if(tab[posY][posX+1] != '#'){
+        if(posX+1 > COLS-1){
+            tab[posY][posX] = ' ';
+            posX = 0;
+            tab[posY][posX] = 'D';
+        }
+
+        else if(tab[posY][posX+1] != '#'){
             tab[posY][posX] = ' ';
             
             posX += 1;
-            if(posX > COLS-2) posX = 0;
+            printf("%d", posX);
 
             tab[posY][posX] = 'D';
         }
     }
 
     if(direction == 'a'){
+        if(posX-1 < 0){
+            tab[posY][posX] = ' ';
+            posX = COLS-1;
+            tab[posY][posX] = 'A';
+        }
 
-        if(tab[posY][posX-1] != '#'){
+        else if(tab[posY][posX-1] != '#'){
             tab[posY][posX] = ' ';
             
             posX -= 1;
-            if(posX < 0) posX = COLS-2; //TEM QUE AJUSTAR O NUMERO DE COLUNAS
+            printf("%d", posX);
 
             tab[posY][posX] = 'A';
         }
