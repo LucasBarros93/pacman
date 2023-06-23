@@ -11,14 +11,16 @@
 #define COLS  28
 
 char tab[ROWS][COLS];
+char keyPressed = 's';
 
-// typedef struct{
-//     int x;
-//     int y;
-//     char dir;
-// } Pacman;
+//CRIANDO E INICIANDO O PACMAN COMO UM STRUCT
+typedef struct{
+    int x;
+    int y;
+    char dir;
+} Pacman;
 
-// Pacman pac;
+Pacman pac = {14, 23, 's'};
 
 // typedef struct{
 //     int x;
@@ -28,16 +30,6 @@ char tab[ROWS][COLS];
 
 
 // Ghost clyde;
-
-
-// pac.x = 14;
-// pac.y = 23;
-// pac.dir = 's';
-
-
-int posX = 14;
-int posY = 23;
-char direction = 's';
 
 struct pollfd mypoll = { STDIN_FILENO, POLLIN|POLLPRI };
 
@@ -81,19 +73,19 @@ void print_tab(void){
             }
 
 
-            if(tab[i][j] == 'D'){ //&& direction =='d'){
+            if(tab[i][j] == 'D'){ //&& pac.dir =='d'){
                 printf("\x1b[38;5;11m" "ᗧ");
                 continue;
             }
-            if(tab[i][j] == 'A'){ //&& direction =='a'){
+            if(tab[i][j] == 'A'){ //&& pac.dir =='a'){
                 printf("\x1b[38;5;11m" "ᗤ");
                 continue;
             }
-            if(tab[i][j] == 'S'){ //&& direction =='s'){
+            if(tab[i][j] == 'S'){ //&& pac.dir =='s'){
                 printf("\x1b[38;5;11m" "ᗣ");
                 continue;
             }
-            if(tab[i][j] == 'W'){ //&& direction =='w'){
+            if(tab[i][j] == 'W'){ //&& pac.dir =='w'){
                 printf("\x1b[38;5;11m" "ᗢ");
                 continue;
             }
@@ -124,51 +116,51 @@ void print_tab(void){
 }
 
 void move_pacman(void){
-    if(direction == 'd'){
-        if(posX+1 > COLS-1){
-            tab[posY][posX] = ' ';
-            posX = 0;
-            tab[posY][posX] = 'D';
+    if(pac.dir == 'd'){
+        if(pac.x+1 > COLS-1){
+            tab[pac.y][pac.x] = ' ';
+            pac.x = 0;
+            tab[pac.y][pac.x] = 'D';
         }
 
-        else if(tab[posY][posX+1] != '#'){
-            tab[posY][posX] = ' ';
-            posX += 1;
-            tab[posY][posX] = 'D';
-        }
-    }
-
-    if(direction == 'a'){
-        if(posX-1 < 0){
-            tab[posY][posX] = ' ';
-            posX = COLS-1;
-            tab[posY][posX] = 'A';
-        }
-
-        else if(tab[posY][posX-1] != '#'){
-            tab[posY][posX] = ' ';
-            posX -= 1;
-            tab[posY][posX] = 'A';
+        else if(tab[pac.y][pac.x+1] != '#'){
+            tab[pac.y][pac.x] = ' ';
+            pac.x += 1;
+            tab[pac.y][pac.x] = 'D';
         }
     }
 
-    if(direction == 's'){
+    if(pac.dir == 'a'){
+        if(pac.x-1 < 0){
+            tab[pac.y][pac.x] = ' ';
+            pac.x = COLS-1;
+            tab[pac.y][pac.x] = 'A';
+        }
 
-        if(tab[posY+1][posX] != '#'){
-            tab[posY][posX] = ' ';
+        else if(tab[pac.y][pac.x-1] != '#'){
+            tab[pac.y][pac.x] = ' ';
+            pac.x -= 1;
+            tab[pac.y][pac.x] = 'A';
+        }
+    }
+
+    if(pac.dir == 's'){
+
+        if(tab[pac.y+1][pac.x] != '#'){
+            tab[pac.y][pac.x] = ' ';
             
-            posY += 1;
-            tab[posY][posX] = 'S';
+            pac.y += 1;
+            tab[pac.y][pac.x] = 'S';
         }
     }
 
-    if(direction == 'w'){
+    if(pac.dir == 'w'){
 
-        if(tab[posY-1][posX] != '#'){
-            tab[posY][posX] = ' ';
+        if(tab[pac.y-1][pac.x] != '#'){
+            tab[pac.y][pac.x] = ' ';
             
-            posY -= 1;
-            tab[posY][posX] = 'W';
+            pac.y -= 1;
+            tab[pac.y][pac.x] = 'W';
         }
     }
 }
@@ -199,7 +191,7 @@ void main(void){
 
         if(poll(&mypoll, 1, 200)){
             clear();
-            direction = getch();
+            pac.dir = getch();
             move_pacman();
         }
         else{
@@ -207,7 +199,7 @@ void main(void){
             move_pacman();
         }
 
-        //direction = getch();
+        //pac.dir = getch();
         //move_pacman();
 
         print_tab();
