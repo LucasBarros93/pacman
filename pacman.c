@@ -116,51 +116,73 @@ void print_tab(void){
 }
 
 void move_pacman(void){
-    if(pac.dir == 'd'){
+    if(keyPressed == 'd'){
         if(pac.x+1 > COLS-1){
+            pac.dir = keyPressed;
+
             tab[pac.y][pac.x] = ' ';
             pac.x = 0;
             tab[pac.y][pac.x] = 'D';
         }
 
         else if(tab[pac.y][pac.x+1] != '#'){
+            pac.dir = keyPressed;
+
             tab[pac.y][pac.x] = ' ';
             pac.x += 1;
             tab[pac.y][pac.x] = 'D';
         }
+        else{
+            keyPressed = pac.dir;
+        }
     }
 
-    if(pac.dir == 'a'){
+    if(keyPressed == 'a'){
         if(pac.x-1 < 0){
+            pac.dir = keyPressed;
+
             tab[pac.y][pac.x] = ' ';
             pac.x = COLS-1;
             tab[pac.y][pac.x] = 'A';
         }
 
         else if(tab[pac.y][pac.x-1] != '#'){
+            pac.dir = keyPressed;
+
             tab[pac.y][pac.x] = ' ';
             pac.x -= 1;
             tab[pac.y][pac.x] = 'A';
         }
-    }
-
-    if(pac.dir == 's'){
-
-        if(tab[pac.y+1][pac.x] != '#'){
-            tab[pac.y][pac.x] = ' ';
-            
-            pac.y += 1;
-            tab[pac.y][pac.x] = 'S';
+        else{
+            keyPressed = pac.dir;
         }
     }
 
-    if(pac.dir == 'w'){
+    if(keyPressed == 's'){
+
+        if(tab[pac.y+1][pac.x] != '#'){
+            pac.dir = keyPressed;
+
+            tab[pac.y][pac.x] = ' ';          
+            pac.y += 1;
+            tab[pac.y][pac.x] = 'S';
+        }
+        else{
+            keyPressed = pac.dir;
+        }
+    }
+
+    if(keyPressed == 'w'){
 
         if(tab[pac.y-1][pac.x] != '#'){
+            pac.dir = keyPressed;
+
             tab[pac.y][pac.x] = ' ';
-            
             pac.y -= 1;
             tab[pac.y][pac.x] = 'W';
+        }
+        else{
+            keyPressed = pac.dir;
         }
     }
 }
@@ -191,7 +213,7 @@ void main(void){
 
         if(poll(&mypoll, 1, 200)){
             clear();
-            pac.dir = getch();
+            keyPressed = getch();
             move_pacman();
         }
         else{
