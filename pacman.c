@@ -202,5 +202,5 @@ void main(void){
         clear();
     }
 
-    endwin(); //olá1
+    endwin(); //olá mundo
 }
