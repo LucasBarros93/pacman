@@ -11,7 +11,7 @@
 #define COLS  28
 
 char tab[ROWS][COLS];
-char keyPressed = 's';
+char keyPressed = ' ';
 
 //CRIANDO E INICIANDO O PACMAN COMO UM STRUCT
 typedef struct{
@@ -20,7 +20,7 @@ typedef struct{
     char dir;
 } Pacman;
 
-Pacman pac = {14, 23, 's'};
+Pacman pac = {14, 23, 'a'};
 
 // typedef struct{
 //     int x;
@@ -73,19 +73,19 @@ void print_tab(void){
             }
 
 
-            if(tab[i][j] == 'D'){ //&& pac.dir =='d'){
+            if(tab[i][j] == 'A' && pac.dir =='d'){
                 printf("\x1b[38;5;11m" "ᗧ");
                 continue;
             }
-            if(tab[i][j] == 'A'){ //&& pac.dir =='a'){
+            if(tab[i][j] == 'A' && pac.dir =='a'){
                 printf("\x1b[38;5;11m" "ᗤ");
                 continue;
             }
-            if(tab[i][j] == 'S'){ //&& pac.dir =='s'){
+            if(tab[i][j] == 'A' && pac.dir =='s'){
                 printf("\x1b[38;5;11m" "ᗣ");
                 continue;
             }
-            if(tab[i][j] == 'W'){ //&& pac.dir =='w'){
+            if(tab[i][j] == 'A' && pac.dir =='w'){
                 printf("\x1b[38;5;11m" "ᗢ");
                 continue;
             }
@@ -122,7 +122,7 @@ void move_pacman(void){
 
             tab[pac.y][pac.x] = ' ';
             pac.x = 0;
-            tab[pac.y][pac.x] = 'D';
+            tab[pac.y][pac.x] = 'A';
         }
 
         else if(tab[pac.y][pac.x+1] != '#'){
@@ -130,7 +130,7 @@ void move_pacman(void){
 
             tab[pac.y][pac.x] = ' ';
             pac.x += 1;
-            tab[pac.y][pac.x] = 'D';
+            tab[pac.y][pac.x] = 'A';
         }
         else{
             keyPressed = pac.dir;
@@ -165,7 +165,7 @@ void move_pacman(void){
 
             tab[pac.y][pac.x] = ' ';          
             pac.y += 1;
-            tab[pac.y][pac.x] = 'S';
+            tab[pac.y][pac.x] = 'A';
         }
         else{
             keyPressed = pac.dir;
@@ -179,7 +179,7 @@ void move_pacman(void){
 
             tab[pac.y][pac.x] = ' ';
             pac.y -= 1;
-            tab[pac.y][pac.x] = 'W';
+            tab[pac.y][pac.x] = 'A';
         }
         else{
             keyPressed = pac.dir;
