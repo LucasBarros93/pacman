@@ -8,7 +8,7 @@
 #define RESETCOLOR "\x1B[0m"
 
 #define ROWS  31
-#define COLS  28  //TEM QUE TA VENDO ISSO AQUI, FAZER JUNTO COM A V2 DA init_tab()
+#define COLS  28
 
 char tab[ROWS][COLS];
 
@@ -17,7 +17,18 @@ char tab[ROWS][COLS];
 //     int y;
 //     char dir;
 // } Pacman;
+
 // Pacman pac;
+
+// typedef struct{
+//     int x;
+//     int y;
+//     char dir;
+// } Ghost;
+
+
+// Ghost clyde;
+
 
 // pac.x = 14;
 // pac.y = 23;
@@ -55,7 +66,7 @@ void print_tab(void){
     for(int i=0; i<ROWS; i++){
         for(int j=0; j<COLS; j++){
             if(tab[i][j] == '#'){
-                printf("\x1b[38;5;19m" "⣿" RESETCOLOR);
+                printf("\x1b[38;5;19m" "⣿");
                 continue;
             }
 
@@ -112,7 +123,7 @@ void print_tab(void){
     }
 }
 
-void move_pacman(){
+void move_pacman(void){
     if(direction == 'd'){
         if(posX+1 > COLS-1){
             tab[posY][posX] = ' ';
@@ -164,25 +175,26 @@ void move_pacman(){
 
 void main(void){
 
-    //NÃO TO ENTENDENDO LEGAL
     curs_set (0);  // Hide Cursor 
 
     initscr();
+
+    //NÃO TO ENTENDENDO LEGAL
     keypad(stdscr, TRUE);
     nodelay(stdscr, TRUE);
-    //timeout(SPEED);
+    //ATÉ AQUI
+
     noecho();
 
     clear();
     refresh();
-    //ATÉ AQUI
 
     init_tab();
     print_tab();
 
     while(1){
 
-        //refresh();
+        //refresh();    NÃO USAR SE NÃO SEBE COMO
         //usleep(SPEED);
 
         if(poll(&mypoll, 1, 200)){
