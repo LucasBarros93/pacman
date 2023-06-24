@@ -5,7 +5,7 @@
 #include <poll.h>
 #include <time.h>
 
-#define SPEED  100000
+#define SPEED  500000
 #define RESETCOLOR "\x1B[0m"
 
 #define ROWS  31
@@ -13,6 +13,7 @@
 
 char tab[ROWS][COLS];
 char keyPressed = ' ';
+int  gametime = 0;
 
 //CRIANDO E INICIANDO O PACMAN COMO UM STRUCT
 typedef struct{
@@ -33,7 +34,7 @@ typedef struct{
     int dificult;
 } Ghost;
 
-Ghost clyde = {15, 11, 'a', ' ', 1, 1};
+Ghost clyde = {12, 14, 'a', ' ', 0, 1};
 Ghost blynk = {13, 14, 'a', ' ', 0, 0};
 Ghost pink  = {14, 14, 'a', ' ', 0, 0};
 Ghost ink   = {15, 14, 'a', ' ', 0, 0};
@@ -195,134 +196,136 @@ void move_pacman(void){
 }
 
 void move_ghost(void){
-    int options = 1;
-    char directions[4];
-    directions[0] = clyde.dir;
-    srand(time(NULL));
+    if(clyde.inGame){
+        int options = 1;
+        char directions[4];
+        directions[0] = clyde.dir;
+        srand(time(NULL));
 
-    if(clyde.dir == 'd'|| clyde.dir == 'a'){
-        if(tab[clyde.y+1][clyde.x] != '#' || tab[clyde.y-1][clyde.x] != '#'){
-            options = 0;
-            if (tab[clyde.y+1][clyde.x] != '#') {
-                directions[options] = 's';
-                options++;
-            }
-            if (tab[clyde.y-1][clyde.x] != '#') {
-                directions[options] = 'w';
-                options++;
-            }
-            if (tab[clyde.y][clyde.x+1] != '#') {
-                directions[options] = 'd';
-                options++;
-            }
-            if (tab[clyde.y][clyde.x-1] != '#') {
-                directions[options] = 'a';
-                options++;
-            }
-        }
-    }
-
-    else{
-        if(tab[clyde.y][clyde.x+1] != '#' || tab[clyde.y][clyde.x-1] != '#'){
-            options = 0;
-            if (tab[clyde.y+1][clyde.x] != '#') {
-                directions[options] = 's';
-                options++;
-            }
-            if (tab[clyde.y-1][clyde.x] != '#') {
-                directions[options] = 'w';
-                options++;
-            }
-            if (tab[clyde.y][clyde.x+1] != '#') {
-                directions[options] = 'd';
-                options++;
-            }
-            if (tab[clyde.y][clyde.x-1] != '#') {
-                directions[options] = 'a';
-                options++;
-            }
-        }
-    }
-    
-    //VAMO ESCOLHER A DIREÇÃO DE FORMA INTELIGENTE AGR
-    int finalOptions = 0;
-    char finalDirections[4];
-
-    if(clyde.dificult){
-        int goX = pac.x - clyde.x;
-        int goY = pac.y - clyde.y;
-        char idealDirectons[2];
-        idealDirectons[0] = (goX < 0)? 'a':'d'; 
-        idealDirectons[0] = (goX == 0)? ' ':idealDirectons[0]; 
-        idealDirectons[1] = (goY > 0)? 's':'w';
-        idealDirectons[1] = (goY == 0)? ' ':idealDirectons[1];
-
-        for (int i = 0; i < options; i++) {
-            int flag = 0;
-            for (int j = 0; j < 2; j++) {
-                if (directions[i] == idealDirectons[j]) {
-                    flag = 1;
-                    break;
+        if(clyde.dir == 'd'|| clyde.dir == 'a'){
+            if(tab[clyde.y+1][clyde.x] != '#' || tab[clyde.y-1][clyde.x] != '#'){
+                options = 0;
+                if (tab[clyde.y+1][clyde.x] != '#') {
+                    directions[options] = 's';
+                    options++;
+                }
+                if (tab[clyde.y-1][clyde.x] != '#') {
+                    directions[options] = 'w';
+                    options++;
+                }
+                if (tab[clyde.y][clyde.x+1] != '#') {
+                    directions[options] = 'd';
+                    options++;
+                }
+                if (tab[clyde.y][clyde.x-1] != '#') {
+                    directions[options] = 'a';
+                    options++;
                 }
             }
-            if (flag) {
-                finalDirections[finalOptions] = directions[i];
-                finalOptions++;
+        }
+
+        else{
+            if(tab[clyde.y][clyde.x+1] != '#' || tab[clyde.y][clyde.x-1] != '#'){
+                options = 0;
+                if (tab[clyde.y+1][clyde.x] != '#') {
+                    directions[options] = 's';
+                    options++;
+                }
+                if (tab[clyde.y-1][clyde.x] != '#') {
+                    directions[options] = 'w';
+                    options++;
+                }
+                if (tab[clyde.y][clyde.x+1] != '#') {
+                    directions[options] = 'd';
+                    options++;
+                }
+                if (tab[clyde.y][clyde.x-1] != '#') {
+                    directions[options] = 'a';
+                    options++;
+                }
             }
         }
-    }
+        
+        //VAMO ESCOLHER A DIREÇÃO DE FORMA INTELIGENTE AGR
+        int finalOptions = 0;
+        char finalDirections[4];
 
-    if(finalOptions == 0){
-        clyde.dir = directions[rand()%(options)];
-    }
-    else{
-        clyde.dir = finalDirections[rand()%(finalOptions)];
-    }
+        if(clyde.dificult){
+            int goX = pac.x - clyde.x;
+            int goY = pac.y - clyde.y;
+            char idealDirectons[2];
+            idealDirectons[0] = (goX < 0)? 'a':'d'; 
+            idealDirectons[0] = (goX == 0)? ' ':idealDirectons[0]; 
+            idealDirectons[1] = (goY > 0)? 's':'w';
+            idealDirectons[1] = (goY == 0)? ' ':idealDirectons[1];
 
-    if(clyde.dir == 'd'){
-        if(clyde.x+1 > COLS-1){
-            tab[clyde.y][clyde.x] = clyde.under;
-            clyde.x = 0;
-            clyde.under = tab[clyde.y][clyde.x];
-            tab[clyde.y][clyde.x] = 'C';
+            for (int i = 0; i < options; i++) {
+                int flag = 0;
+                for (int j = 0; j < 2; j++) {
+                    if (directions[i] == idealDirectons[j]) {
+                        flag = 1;
+                        break;
+                    }
+                }
+                if (flag) {
+                    finalDirections[finalOptions] = directions[i];
+                    finalOptions++;
+                }
+            }
         }
+        //SE ENTRAR NISSO AI DE CIMA O FANTASMA FICA DO MAU
 
+        if(finalOptions == 0){
+            clyde.dir = directions[rand()%(options)];
+        }
         else{
-            tab[clyde.y][clyde.x] = clyde.under;
-            clyde.x += 1;
+            clyde.dir = finalDirections[rand()%(finalOptions)];
+        }
+
+        if(clyde.dir == 'd'){
+            if(clyde.x+1 > COLS-1){
+                tab[clyde.y][clyde.x] = clyde.under;
+                clyde.x = 0;
+                clyde.under = tab[clyde.y][clyde.x];
+                tab[clyde.y][clyde.x] = 'C';
+            }
+
+            else{
+                tab[clyde.y][clyde.x] = clyde.under;
+                clyde.x += 1;
+                clyde.under = tab[clyde.y][clyde.x];
+                tab[clyde.y][clyde.x] = 'C';
+            }
+        }
+        if(clyde.dir == 'a'){
+            if(clyde.x-1 < 0){
+                tab[clyde.y][clyde.x] = clyde.under;
+                clyde.x = COLS-1;
+                clyde.under = tab[clyde.y][clyde.x];
+                tab[clyde.y][clyde.x] = 'C';
+            }
+
+            else{
+                tab[clyde.y][clyde.x] = clyde.under;
+                clyde.x -= 1;
+                clyde.under = tab[clyde.y][clyde.x];
+                tab[clyde.y][clyde.x] = 'C';
+            }
+        }
+
+        if(clyde.dir == 's'){
+            tab[clyde.y][clyde.x] = clyde.under;          
+            clyde.y += 1;
+            clyde.under = tab[clyde.y][clyde.x];
+            tab[clyde.y][clyde.x] = 'C';
+        }
+        if(clyde.dir == 'w'){
+            tab[clyde.y][clyde.x] = clyde.under;          
+            clyde.y -= 1;
             clyde.under = tab[clyde.y][clyde.x];
             tab[clyde.y][clyde.x] = 'C';
         }
     }
-    if(clyde.dir == 'a'){
-        if(clyde.x-1 < 0){
-            tab[clyde.y][clyde.x] = clyde.under;
-            clyde.x = COLS-1;
-            clyde.under = tab[clyde.y][clyde.x];
-            tab[clyde.y][clyde.x] = 'C';
-        }
-
-        else{
-            tab[clyde.y][clyde.x] = clyde.under;
-            clyde.x -= 1;
-            clyde.under = tab[clyde.y][clyde.x];
-            tab[clyde.y][clyde.x] = 'C';
-        }
-    }
-
-    if(clyde.dir == 's'){
-        tab[clyde.y][clyde.x] = clyde.under;          
-        clyde.y += 1;
-        clyde.under = tab[clyde.y][clyde.x];
-        tab[clyde.y][clyde.x] = 'C';
-    }
-    if(clyde.dir == 'w'){
-        tab[clyde.y][clyde.x] = clyde.under;          
-        clyde.y -= 1;
-        clyde.under = tab[clyde.y][clyde.x];
-        tab[clyde.y][clyde.x] = 'C';
-    }
-
 }
 
 int game_over(void){
@@ -339,6 +342,37 @@ int game_over(void){
     return 1;
    }
    return 0;
+}
+
+void spawn_ghost(void){
+    tab[clyde.y][clyde.x] = ' ';
+    print_tab();
+    usleep(SPEED);
+    clear();
+
+    tab[clyde.y][clyde.x] = 'C';
+    print_tab();
+    usleep(SPEED);
+    clear();
+
+    tab[clyde.y][clyde.x] = ' ';
+    print_tab();
+    usleep(SPEED);
+    clear();
+
+    tab[clyde.y][clyde.x] = 'C';
+    print_tab();
+    usleep(SPEED);
+    clear();
+
+    tab[clyde.y][clyde.x] = ' ';
+    print_tab();
+    usleep(SPEED);
+    clear();
+
+    clyde.x = 15;
+    clyde.y = 11;
+    clyde.inGame = 1;
 }
 
 void main(void){
@@ -363,7 +397,9 @@ void main(void){
     while(1){
 
         //refresh();    NÃO USAR SE NÃO SEBE COMO
-        //usleep(SPEED);
+        if(gametime == 20){
+            spawn_ghost();
+        }
 
         if(poll(&mypoll, 1, 200)){
             clear();
@@ -381,7 +417,8 @@ void main(void){
             while(1){}
     
         clear();
+        gametime++;
     }
 
-    endwin(); //olá mundo
+    endwin();
 }
