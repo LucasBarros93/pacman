@@ -3,6 +3,7 @@
 #include <unistd.h>   // Funcao usleep
 #include <curses.h>   // Funcoes de tela com clear (clrscr)
 #include <poll.h>
+#include <time.h>
 
 #define SPEED  100000
 #define RESETCOLOR "\x1B[0m"
@@ -22,14 +23,16 @@ typedef struct{
 
 Pacman pac = {14, 23, 'a'};
 
-// typedef struct{
-//     int x;
-//     int y;
-//     char dir;
-// } Ghost;
+//CRIANDO E INICIANDO FANTASMAS
+typedef struct{
+    int x;
+    int y;
+    char dir;
+    int inGame;
+    char under;
+} Ghost;
 
-
-// Ghost clyde;
+Ghost clyde = {15, 11, 'a', 1, ' '};
 
 struct pollfd mypoll = { STDIN_FILENO, POLLIN|POLLPRI };
 
@@ -187,6 +190,103 @@ void move_pacman(void){
     }
 }
 
+void move_ghost(void){
+    int options = 0;
+    char directions[4];
+    srand(time(NULL));
+
+    if(clyde.dir == 'd'|| clyde.dir == 'a'){
+        if(tab[clyde.y+1][clyde.x] != '#' || tab[clyde.y-1][clyde.x] != '#'){
+            if (tab[clyde.y+1][clyde.x] != '#') {
+                directions[options] = 's';
+                options++;
+            }
+            if (tab[clyde.y-1][clyde.x] != '#') {
+                directions[options] = 'w';
+                options++;
+            }
+            if (tab[clyde.y][clyde.x+1] != '#') {
+                directions[options] = 'd';
+                options++;
+            }
+            if (tab[clyde.y][clyde.x-1] != '#') {
+                directions[options] = 'a';
+                options++;
+            }
+
+            clyde.dir = directions[rand()%(options)];
+        }
+    }
+
+    else{
+        if(tab[clyde.y][clyde.x+1] != '#' || tab[clyde.y][clyde.x-1] != '#'){
+            if (tab[clyde.y+1][clyde.x] != '#') {
+                directions[options] = 's';
+                options++;
+            }
+            if (tab[clyde.y-1][clyde.x] != '#') {
+                directions[options] = 'w';
+                options++;
+            }
+            if (tab[clyde.y][clyde.x+1] != '#') {
+                directions[options] = 'd';
+                options++;
+            }
+            if (tab[clyde.y][clyde.x-1] != '#') {
+                directions[options] = 'a';
+                options++;
+            }
+
+            clyde.dir = directions[rand()%(options)];
+        }
+    }
+
+    if(clyde.dir == 'd'){
+        if(clyde.x+1 > COLS-1){
+            tab[clyde.y][clyde.x] = clyde.under;
+            clyde.x = 0;
+            clyde.under = tab[clyde.y][clyde.x];
+            tab[clyde.y][clyde.x] = 'C';
+        }
+
+        else{
+            tab[clyde.y][clyde.x] = clyde.under;
+            clyde.x += 1;
+            clyde.under = tab[clyde.y][clyde.x];
+            tab[clyde.y][clyde.x] = 'C';
+        }
+    }
+    if(clyde.dir == 'a'){
+        if(clyde.x-1 < 0){
+            tab[clyde.y][clyde.x] = clyde.under;
+            clyde.x = COLS-1;
+            clyde.under = tab[clyde.y][clyde.x];
+            tab[clyde.y][clyde.x] = 'C';
+        }
+
+        else{
+            tab[clyde.y][clyde.x] = clyde.under;
+            clyde.x -= 1;
+            clyde.under = tab[clyde.y][clyde.x];
+            tab[clyde.y][clyde.x] = 'C';
+        }
+    }
+
+    if(clyde.dir == 's'){
+        tab[clyde.y][clyde.x] = clyde.under;          
+        clyde.y += 1;
+        clyde.under = tab[clyde.y][clyde.x];
+        tab[clyde.y][clyde.x] = 'C';
+    }
+    if(clyde.dir == 'w'){
+        tab[clyde.y][clyde.x] = clyde.under;          
+        clyde.y -= 1;
+        clyde.under = tab[clyde.y][clyde.x];
+        tab[clyde.y][clyde.x] = 'C';
+    }
+
+}
+
 void main(void){
 
     curs_set (0);  // Hide Cursor 
@@ -215,12 +315,15 @@ void main(void){
             clear();
             keyPressed = getch();
             move_pacman();
+            move_ghost();
         }
         else{
             clear();
             move_pacman();
+            move_ghost();
         }
 
+        //printf("%c", clyde.dir);
         //pac.dir = getch();
         //move_pacman();
 
