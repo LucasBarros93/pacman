@@ -28,11 +28,15 @@ typedef struct{
     int x;
     int y;
     char dir;
-    int inGame;
     char under;
+    int inGame;
+    int dificult;
 } Ghost;
 
-Ghost clyde = {15, 11, 'a', 1, ' '};
+Ghost clyde = {15, 11, 'a', ' ', 1, 1};
+Ghost blynk = {13, 14, 'a', ' ', 0, 0};
+Ghost pink  = {14, 14, 'a', ' ', 0, 0};
+Ghost ink   = {15, 14, 'a', ' ', 0, 0};
 
 struct pollfd mypoll = { STDIN_FILENO, POLLIN|POLLPRI };
 
@@ -191,12 +195,14 @@ void move_pacman(void){
 }
 
 void move_ghost(void){
-    int options = 0;
+    int options = 1;
     char directions[4];
+    directions[0] = clyde.dir;
     srand(time(NULL));
 
     if(clyde.dir == 'd'|| clyde.dir == 'a'){
         if(tab[clyde.y+1][clyde.x] != '#' || tab[clyde.y-1][clyde.x] != '#'){
+            options = 0;
             if (tab[clyde.y+1][clyde.x] != '#') {
                 directions[options] = 's';
                 options++;
@@ -213,13 +219,12 @@ void move_ghost(void){
                 directions[options] = 'a';
                 options++;
             }
-
-            clyde.dir = directions[rand()%(options)];
         }
     }
 
     else{
         if(tab[clyde.y][clyde.x+1] != '#' || tab[clyde.y][clyde.x-1] != '#'){
+            options = 0;
             if (tab[clyde.y+1][clyde.x] != '#') {
                 directions[options] = 's';
                 options++;
@@ -236,9 +241,42 @@ void move_ghost(void){
                 directions[options] = 'a';
                 options++;
             }
-
-            clyde.dir = directions[rand()%(options)];
         }
+    }
+    
+    //VAMO ESCOLHER A DIREÇÃO DE FORMA INTELIGENTE AGR
+    int finalOptions = 0;
+    char finalDirections[4];
+
+    if(clyde.dificult){
+        int goX = pac.x - clyde.x;
+        int goY = pac.y - clyde.y;
+        char idealDirectons[2];
+        idealDirectons[0] = (goX < 0)? 'a':'d'; 
+        idealDirectons[0] = (goX == 0)? ' ':idealDirectons[0]; 
+        idealDirectons[1] = (goY > 0)? 's':'w';
+        idealDirectons[1] = (goY == 0)? ' ':idealDirectons[1];
+
+        for (int i = 0; i < options; i++) {
+            int flag = 0;
+            for (int j = 0; j < 2; j++) {
+                if (directions[i] == idealDirectons[j]) {
+                    flag = 1;
+                    break;
+                }
+            }
+            if (flag) {
+                finalDirections[finalOptions] = directions[i];
+                finalOptions++;
+            }
+        }
+    }
+
+    if(finalOptions == 0){
+        clyde.dir = directions[rand()%(options)];
+    }
+    else{
+        clyde.dir = finalDirections[rand()%(finalOptions)];
     }
 
     if(clyde.dir == 'd'){
@@ -287,6 +325,22 @@ void move_ghost(void){
 
 }
 
+int game_over(void){
+   if(pac.x == clyde.x && pac.y == clyde.y){
+    return 1;
+   } 
+   if(pac.x == blynk.x && pac.y == blynk.y){
+    return 1;
+   }
+   if(pac.x == pink.x && pac.y == pink.y){
+    return 1;
+   }
+   if(pac.x == ink.x && pac.y == ink.y){
+    return 1;
+   }
+   return 0;
+}
+
 void main(void){
 
     curs_set (0);  // Hide Cursor 
@@ -322,12 +376,10 @@ void main(void){
             move_pacman();
             move_ghost();
         }
-
-        //printf("%c", clyde.dir);
-        //pac.dir = getch();
-        //move_pacman();
-
         print_tab();
+        if(game_over())
+            while(1){}
+    
         clear();
     }
 
