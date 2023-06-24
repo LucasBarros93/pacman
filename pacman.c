@@ -26,6 +26,7 @@ Pacman pac = {14, 23, 'a'};
 
 //CRIANDO E INICIANDO FANTASMAS
 typedef struct{
+    char symbol;
     int x;
     int y;
     char dir;
@@ -34,10 +35,10 @@ typedef struct{
     int dificult;
 } Ghost;
 
-Ghost clyde = {12, 14, 'a', ' ', 0, 1};
-Ghost blynk = {13, 14, 'a', ' ', 0, 0};
-Ghost pink  = {14, 14, 'a', ' ', 0, 0};
-Ghost ink   = {15, 14, 'a', ' ', 0, 0};
+Ghost clyde = {'C', 12, 14, 'a', ' ', 0, 0};
+Ghost blynk = {'B', 13, 14, 'a', ' ', 0, 0};
+Ghost pink  = {'P', 14, 14, 'a', ' ', 0, 0};
+Ghost ink   = {'I', 15, 14, 'a', ' ', 0, 0};
 
 struct pollfd mypoll = { STDIN_FILENO, POLLIN|POLLPRI };
 
@@ -195,29 +196,29 @@ void move_pacman(void){
     }
 }
 
-void move_ghost(void){
-    if(clyde.inGame){
+void move_ghost(Ghost (*ghost)){
+    if((*ghost).inGame){
         int options = 1;
         char directions[4];
-        directions[0] = clyde.dir;
+        directions[0] = (*ghost).dir;
         srand(time(NULL));
 
-        if(clyde.dir == 'd'|| clyde.dir == 'a'){
-            if(tab[clyde.y+1][clyde.x] != '#' || tab[clyde.y-1][clyde.x] != '#'){
+        if((*ghost).dir == 'd'|| (*ghost).dir == 'a'){
+            if(tab[(*ghost).y+1][(*ghost).x] != '#' || tab[(*ghost).y-1][(*ghost).x] != '#'){
                 options = 0;
-                if (tab[clyde.y+1][clyde.x] != '#') {
+                if (tab[(*ghost).y+1][(*ghost).x] != '#') {
                     directions[options] = 's';
                     options++;
                 }
-                if (tab[clyde.y-1][clyde.x] != '#') {
+                if (tab[(*ghost).y-1][(*ghost).x] != '#') {
                     directions[options] = 'w';
                     options++;
                 }
-                if (tab[clyde.y][clyde.x+1] != '#') {
+                if (tab[(*ghost).y][(*ghost).x+1] != '#') {
                     directions[options] = 'd';
                     options++;
                 }
-                if (tab[clyde.y][clyde.x-1] != '#') {
+                if (tab[(*ghost).y][(*ghost).x-1] != '#') {
                     directions[options] = 'a';
                     options++;
                 }
@@ -225,21 +226,21 @@ void move_ghost(void){
         }
 
         else{
-            if(tab[clyde.y][clyde.x+1] != '#' || tab[clyde.y][clyde.x-1] != '#'){
+            if(tab[(*ghost).y][(*ghost).x+1] != '#' || tab[(*ghost).y][(*ghost).x-1] != '#'){
                 options = 0;
-                if (tab[clyde.y+1][clyde.x] != '#') {
+                if (tab[(*ghost).y+1][(*ghost).x] != '#') {
                     directions[options] = 's';
                     options++;
                 }
-                if (tab[clyde.y-1][clyde.x] != '#') {
+                if (tab[(*ghost).y-1][(*ghost).x] != '#') {
                     directions[options] = 'w';
                     options++;
                 }
-                if (tab[clyde.y][clyde.x+1] != '#') {
+                if (tab[(*ghost).y][(*ghost).x+1] != '#') {
                     directions[options] = 'd';
                     options++;
                 }
-                if (tab[clyde.y][clyde.x-1] != '#') {
+                if (tab[(*ghost).y][(*ghost).x-1] != '#') {
                     directions[options] = 'a';
                     options++;
                 }
@@ -250,9 +251,9 @@ void move_ghost(void){
         int finalOptions = 0;
         char finalDirections[4];
 
-        if(clyde.dificult){
-            int goX = pac.x - clyde.x;
-            int goY = pac.y - clyde.y;
+        if((*ghost).dificult){
+            int goX = pac.x - (*ghost).x;
+            int goY = pac.y - (*ghost).y;
             char idealDirectons[2];
             idealDirectons[0] = (goX < 0)? 'a':'d'; 
             idealDirectons[0] = (goX == 0)? ' ':idealDirectons[0]; 
@@ -276,54 +277,84 @@ void move_ghost(void){
         //SE ENTRAR NISSO AI DE CIMA O FANTASMA FICA DO MAU
 
         if(finalOptions == 0){
-            clyde.dir = directions[rand()%(options)];
+            (*ghost).dir = directions[rand()%(options)];
         }
         else{
-            clyde.dir = finalDirections[rand()%(finalOptions)];
+            (*ghost).dir = finalDirections[rand()%(finalOptions)];
         }
 
-        if(clyde.dir == 'd'){
-            if(clyde.x+1 > COLS-1){
-                tab[clyde.y][clyde.x] = clyde.under;
-                clyde.x = 0;
-                clyde.under = tab[clyde.y][clyde.x];
-                tab[clyde.y][clyde.x] = 'C';
+        if((*ghost).dir == 'd'){
+            if((*ghost).x+1 > COLS-1){
+                tab[(*ghost).y][(*ghost).x] = (*ghost).under;
+                (*ghost).x = 0;
+                
+                if(tab[(*ghost).y][(*ghost).x] == ' ' || tab[(*ghost).y][(*ghost).x] == '.'){
+                    (*ghost).under = tab[(*ghost).y][(*ghost).x];
+                }
+
+                tab[(*ghost).y][(*ghost).x] = (*ghost).symbol;
             }
 
             else{
-                tab[clyde.y][clyde.x] = clyde.under;
-                clyde.x += 1;
-                clyde.under = tab[clyde.y][clyde.x];
-                tab[clyde.y][clyde.x] = 'C';
+                tab[(*ghost).y][(*ghost).x] = (*ghost).under;
+                (*ghost).x += 1;
+                
+                if(tab[(*ghost).y][(*ghost).x] == ' ' || tab[(*ghost).y][(*ghost).x] == '.'){
+                    (*ghost).under = tab[(*ghost).y][(*ghost).x];
+                }
+
+                tab[(*ghost).y][(*ghost).x] = (*ghost).symbol;
             }
         }
-        if(clyde.dir == 'a'){
-            if(clyde.x-1 < 0){
-                tab[clyde.y][clyde.x] = clyde.under;
-                clyde.x = COLS-1;
-                clyde.under = tab[clyde.y][clyde.x];
-                tab[clyde.y][clyde.x] = 'C';
+        if((*ghost).dir == 'a'){
+            if((*ghost).x-1 < 0){
+                tab[(*ghost).y][(*ghost).x] = (*ghost).under;
+                (*ghost).x = COLS-1;
+                
+                if(tab[(*ghost).y][(*ghost).x] == ' ' || tab[(*ghost).y][(*ghost).x] == '.'){
+                    (*ghost).under = tab[(*ghost).y][(*ghost).x];
+                }
+
+                tab[(*ghost).y][(*ghost).x] = (*ghost).symbol;
             }
 
             else{
-                tab[clyde.y][clyde.x] = clyde.under;
-                clyde.x -= 1;
-                clyde.under = tab[clyde.y][clyde.x];
-                tab[clyde.y][clyde.x] = 'C';
+                tab[(*ghost).y][(*ghost).x] = (*ghost).under;
+                (*ghost).x -= 1;
+                
+                if(tab[(*ghost).y][(*ghost).x] == ' ' || tab[(*ghost).y][(*ghost).x] == '.'){
+                    (*ghost).under = tab[(*ghost).y][(*ghost).x];
+                }
+
+                tab[(*ghost).y][(*ghost).x] = (*ghost).symbol;
             }
         }
 
-        if(clyde.dir == 's'){
-            tab[clyde.y][clyde.x] = clyde.under;          
-            clyde.y += 1;
-            clyde.under = tab[clyde.y][clyde.x];
-            tab[clyde.y][clyde.x] = 'C';
+        if((*ghost).dir == 's'){
+            tab[(*ghost).y][(*ghost).x] = (*ghost).under;          
+            (*ghost).y += 1;
+            
+            if(tab[(*ghost).y][(*ghost).x] == ' ' || tab[(*ghost).y][(*ghost).x] == '.'){
+                (*ghost).under = tab[(*ghost).y][(*ghost).x];
+            }
+            else{
+                (*ghost).under = ' ';
+            }
+
+            tab[(*ghost).y][(*ghost).x] = (*ghost).symbol;
         }
-        if(clyde.dir == 'w'){
-            tab[clyde.y][clyde.x] = clyde.under;          
-            clyde.y -= 1;
-            clyde.under = tab[clyde.y][clyde.x];
-            tab[clyde.y][clyde.x] = 'C';
+        if((*ghost).dir == 'w'){
+            tab[(*ghost).y][(*ghost).x] = (*ghost).under;          
+            (*ghost).y -= 1;
+            
+            if(tab[(*ghost).y][(*ghost).x] == ' ' || tab[(*ghost).y][(*ghost).x] == '.'){
+                (*ghost).under = tab[(*ghost).y][(*ghost).x];
+            }
+            else{
+                (*ghost).under = ' ';
+            }
+
+            tab[(*ghost).y][(*ghost).x] = (*ghost).symbol;
         }
     }
 }
@@ -344,35 +375,35 @@ int game_over(void){
    return 0;
 }
 
-void spawn_ghost(void){
-    tab[clyde.y][clyde.x] = ' ';
+void spawn_ghost(Ghost (*ghost)){
+    tab[(*ghost).y][(*ghost).x] = ' ';
     print_tab();
     usleep(SPEED);
     clear();
 
-    tab[clyde.y][clyde.x] = 'C';
+    tab[(*ghost).y][(*ghost).x] = (*ghost).symbol;
     print_tab();
     usleep(SPEED);
     clear();
 
-    tab[clyde.y][clyde.x] = ' ';
+    tab[(*ghost).y][(*ghost).x] = ' ';
     print_tab();
     usleep(SPEED);
     clear();
 
-    tab[clyde.y][clyde.x] = 'C';
+    tab[(*ghost).y][(*ghost).x] = (*ghost).symbol;
     print_tab();
     usleep(SPEED);
     clear();
 
-    tab[clyde.y][clyde.x] = ' ';
+    tab[(*ghost).y][(*ghost).x] = ' ';
     print_tab();
     usleep(SPEED);
     clear();
 
-    clyde.x = 15;
-    clyde.y = 11;
-    clyde.inGame = 1;
+    (*ghost).x = 15;
+    (*ghost).y = 11;
+    (*ghost).inGame = 1;
 }
 
 void main(void){
@@ -394,23 +425,56 @@ void main(void){
     init_tab();
     print_tab();
 
+    Ghost *pClyde = &clyde;
+    Ghost *pBlynk = &blynk;
+    Ghost *pPink  = &pink;
+    Ghost *pInk   = &ink;
+
     while(1){
 
         //refresh();    NÃO USAR SE NÃO SEBE COMO
         if(gametime == 20){
-            spawn_ghost();
+            spawn_ghost(pClyde);
+        }
+        if(gametime == 50){
+            spawn_ghost(pBlynk);
+        }
+        if(gametime == 80){
+            spawn_ghost(pPink);
+        }
+        if(gametime == 110){
+            spawn_ghost(pInk);
+        }
+
+        if(gametime == 130){
+            clyde.dificult = 1;
+        }
+        if(gametime == 160){
+            blynk.dificult = 1;
+        }
+        if(gametime == 200){
+            pink.dificult = 1;
+        }
+        if(gametime == 230){
+            ink.dificult = 1;
         }
 
         if(poll(&mypoll, 1, 200)){
             clear();
             keyPressed = getch();
             move_pacman();
-            move_ghost();
+            move_ghost(pClyde);
+            move_ghost(pBlynk);
+            move_ghost(pPink);
+            move_ghost(pInk);
         }
         else{
             clear();
             move_pacman();
-            move_ghost();
+            move_ghost(pClyde);
+            move_ghost(pBlynk);
+            move_ghost(pPink);
+            move_ghost(pInk);
         }
         print_tab();
         if(game_over())
