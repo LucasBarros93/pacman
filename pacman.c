@@ -14,6 +14,7 @@
 char tab[ROWS][COLS];
 char keyPressed = ' ';
 int  gametime = 0;
+int  points = 0;
 
 //CRIANDO E INICIANDO O PACMAN COMO UM STRUCT
 typedef struct{
@@ -33,12 +34,13 @@ typedef struct{
     char under;
     int inGame;
     int dificult;
+    int powerless;
 } Ghost;
 
-Ghost clyde = {'C', 12, 14, 'a', ' ', 0, 0};
-Ghost blynk = {'B', 13, 14, 'a', ' ', 0, 0};
-Ghost pink  = {'P', 14, 14, 'a', ' ', 0, 0};
-Ghost ink   = {'I', 15, 14, 'a', ' ', 0, 0};
+Ghost clyde = {'C', 12, 14, 'a', ' ', 0, 0, 0};
+Ghost blynk = {'B', 13, 14, 'a', ' ', 0, 0, 0};
+Ghost pink  = {'P', 14, 14, 'a', ' ', 0, 0, 0};
+Ghost ink   = {'I', 15, 14, 'a', ' ', 0, 0, 0};
 
 struct pollfd mypoll = { STDIN_FILENO, POLLIN|POLLPRI };
 
@@ -62,7 +64,6 @@ void init_tab(void){
     fclose(fp);
 }
 
-// usar ⡇⢸ um dia pra saida dos fantasmas 
 void print_tab(void){
     for(int i=0; i<ROWS; i++){
         for(int j=0; j<COLS; j++){
@@ -101,18 +102,34 @@ void print_tab(void){
 
 
             if(tab[i][j] == 'C'){
+                if(clyde.powerless){
+                    printf("\x1b[38;5;26m" "ᗝ");
+                    continue;
+                }
                 printf("\x1b[38;5;214m" "ᗝ");
                 continue;
             }
             if(tab[i][j] == 'B'){
+                if(blynk.powerless){
+                    printf("\x1b[38;5;26m" "ᗝ");
+                    continue;
+                }
                 printf("\x1b[38;5;197m" "ᗝ");
                 continue;
             }
             if(tab[i][j] == 'P'){
+                if(pink.powerless){
+                    printf("\x1b[38;5;26m" "ᗝ");
+                    continue;
+                }
                 printf("\x1b[38;5;213m" "ᗝ");
                 continue;
             }
             if(tab[i][j] == 'I'){
+                if(ink.powerless){
+                    printf("\x1b[38;5;26m" "ᗝ");
+                    continue;
+                }
                 printf("\x1b[38;5;81m" "ᗝ");
                 continue;
             }
@@ -124,13 +141,16 @@ void print_tab(void){
     }
 }
 
-void move_pacman(void){
+char move_pacman(void){
+    char food = ' ';
     if(keyPressed == 'd'){
         if(pac.x+1 > COLS-1){
             pac.dir = keyPressed;
 
             tab[pac.y][pac.x] = ' ';
             pac.x = 0;
+            
+            food = tab[pac.y][pac.x];
             tab[pac.y][pac.x] = 'A';
         }
 
@@ -139,6 +159,8 @@ void move_pacman(void){
 
             tab[pac.y][pac.x] = ' ';
             pac.x += 1;
+            
+            food = tab[pac.y][pac.x];
             tab[pac.y][pac.x] = 'A';
         }
         else{
@@ -152,6 +174,8 @@ void move_pacman(void){
 
             tab[pac.y][pac.x] = ' ';
             pac.x = COLS-1;
+            
+            food = tab[pac.y][pac.x];
             tab[pac.y][pac.x] = 'A';
         }
 
@@ -160,6 +184,8 @@ void move_pacman(void){
 
             tab[pac.y][pac.x] = ' ';
             pac.x -= 1;
+            
+            food = tab[pac.y][pac.x];
             tab[pac.y][pac.x] = 'A';
         }
         else{
@@ -174,6 +200,8 @@ void move_pacman(void){
 
             tab[pac.y][pac.x] = ' ';          
             pac.y += 1;
+            
+            food = tab[pac.y][pac.x];
             tab[pac.y][pac.x] = 'A';
         }
         else{
@@ -188,12 +216,15 @@ void move_pacman(void){
 
             tab[pac.y][pac.x] = ' ';
             pac.y -= 1;
+            
+            food = tab[pac.y][pac.x];
             tab[pac.y][pac.x] = 'A';
         }
         else{
             keyPressed = pac.dir;
         }
     }
+    return food;
 }
 
 void move_ghost(Ghost (*ghost)){
@@ -251,7 +282,7 @@ void move_ghost(Ghost (*ghost)){
         int finalOptions = 0;
         char finalDirections[4];
 
-        if((*ghost).dificult){
+        if((*ghost).dificult && (*ghost).powerless == 0){
             int goX = pac.x - (*ghost).x;
             int goY = pac.y - (*ghost).y;
             char idealDirectons[2];
@@ -406,6 +437,154 @@ void spawn_ghost(Ghost (*ghost)){
     (*ghost).inGame = 1;
 }
 
+void hard_reset(void){
+    clear();
+    refresh();
+    usleep(SPEED/2);
+    print_tab();
+    usleep(SPEED);
+
+    clear();
+    refresh();
+    usleep(SPEED/2);
+    print_tab();
+    usleep(SPEED);
+
+    clear();
+    refresh();
+    usleep(SPEED/2);
+    print_tab();
+    usleep(SPEED);
+    clear();
+    refresh();
+    
+    init_tab();
+    pac.x = 14;
+    pac.y = 23;
+    pac.dir = 'a';
+
+    clyde.x = 12;
+    clyde.y = 14;    
+    clyde.dir = 'a';
+    clyde.inGame = 0;
+    clyde.dificult = 0;
+
+    blynk.x = 13;
+    blynk.y = 14;    
+    blynk.dir = 'a';
+    blynk.inGame = 0;
+    blynk.dificult = 0;
+
+    pink.x = 14;
+    pink.y = 14;    
+    pink.dir = 'a';
+    pink.inGame = 0;
+    pink.dificult = 0;
+
+    ink.x = 15;
+    ink.y = 14;    
+    ink.dir = 'a';
+    ink.inGame = 0;
+    ink.dificult = 0;
+
+    print_tab();
+    usleep(SPEED*3); 
+}
+
+void pontuation_power(char food){
+    if(food == '.'){
+        points += 10;
+    }
+
+    if(food == 'o'){
+        Ghost *pClyde = &clyde;
+        Ghost *pBlynk = &blynk;
+        Ghost *pPink  = &pink;
+        Ghost *pInk   = &ink;
+        char foo = ' ';
+
+        clyde.powerless = 1;
+        blynk.powerless = 1;
+        pink.powerless = 1;
+        ink.powerless = 1;
+
+        int time = 0;
+        while(time < 50){
+            if(poll(&mypoll, 1, 200)){
+                clear();
+                keyPressed = getch();
+                move_ghost(pClyde);
+                move_ghost(pBlynk);
+                move_ghost(pPink);
+                move_ghost(pInk);
+                foo = move_pacman();
+            }
+            else{
+                clear();
+                move_ghost(pClyde);
+                move_ghost(pBlynk);
+                move_ghost(pPink);
+                move_ghost(pInk);
+                foo = move_pacman();
+            }
+            pontuation_power(foo);
+            print_tab();
+            time++;
+        }
+
+        clyde.powerless = 0;
+        blynk.powerless = 0;
+        pink.powerless = 0;
+        ink.powerless = 0;
+    }
+
+    if(food == 'C'){
+        clyde.inGame = 0;
+        clyde.x = 12;
+        clyde.y = 14;
+        clyde.dir = 'a';
+        clyde.under = ' ';
+
+        tab[14][12] = 'C';
+
+        points += 100;
+    }
+    if(food == 'B'){
+        blynk.inGame = 0;
+        blynk.x = 13;
+        blynk.y = 14;
+        blynk.dir = 'a';
+        blynk.under = ' ';
+        
+        tab[14][13] = 'B';
+
+        points += 100;
+    }
+    if(food == 'P'){
+        pink.inGame = 0;
+        pink.x = 14;
+        pink.y = 14;
+        pink.dir = 'a';
+        pink.under = ' ';
+
+        tab[14][14] = 'P';
+
+        points += 100;
+    }
+    if(food == 'I'){
+        ink.inGame = 0;
+        ink.x = 12;
+        ink.y = 15;
+        ink.dir = 'a';
+        ink.under = ' ';
+
+        tab[14][15] = 'I';
+
+        points += 100;
+    }
+
+}
+
 void main(void){
 
     curs_set (0);  // Hide Cursor 
@@ -414,7 +593,7 @@ void main(void){
 
     //NÃO TO ENTENDENDO LEGAL
     keypad(stdscr, TRUE);
-    nodelay(stdscr, TRUE);
+    //nodelay(stdscr, TRUE);
     //ATÉ AQUI
 
     noecho();
@@ -430,10 +609,10 @@ void main(void){
     Ghost *pPink  = &pink;
     Ghost *pInk   = &ink;
     int gameover = 0;
+    char food = ' ';
 
     while(1){
 
-        //refresh();    NÃO USAR SE NÃO SEBE COMO
         if(gametime == 20){
             spawn_ghost(pClyde);
         }
@@ -463,7 +642,7 @@ void main(void){
         if(poll(&mypoll, 1, 200)){
             clear();
             keyPressed = getch();
-            move_pacman();
+            food = move_pacman();
             gameover = game_over();
             move_ghost(pClyde);
             move_ghost(pBlynk);
@@ -472,7 +651,7 @@ void main(void){
         }
         else{
             clear();
-            move_pacman();
+            food = move_pacman();
             gameover = game_over();
             move_ghost(pClyde);
             move_ghost(pBlynk);
@@ -482,6 +661,7 @@ void main(void){
         print_tab();
         if(gameover)
             while(1){}
+        pontuation_power(food);
     
         clear();
         gametime++;
