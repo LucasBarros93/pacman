@@ -487,6 +487,8 @@ void hard_reset(void){
     ink.inGame = 0;
     ink.dificult = 0;
 
+    gametime = 1;
+
     print_tab();
     usleep(SPEED*3); 
 }
@@ -585,6 +587,17 @@ void pontuation_power(char food){
 
 }
 
+int isOver(void){
+    for(int i=0; i<ROWS; i++){
+        for(int j=0; j<COLS; j++){
+            if(tab[i][j] == '.'){
+                return 0;
+            }
+        }
+    }
+    return 1;
+}
+
 void main(void){
 
     curs_set (0);  // Hide Cursor 
@@ -661,6 +674,9 @@ void main(void){
         print_tab();
         if(gameover)
             while(1){}
+        if(isOver()){
+            hard_reset();
+        }
         pontuation_power(food);
     
         clear();
