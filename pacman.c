@@ -206,19 +206,19 @@ void move_ghost(Ghost (*ghost)){
         if((*ghost).dir == 'd'|| (*ghost).dir == 'a'){
             if(tab[(*ghost).y+1][(*ghost).x] != '#' || tab[(*ghost).y-1][(*ghost).x] != '#'){
                 options = 0;
-                if (tab[(*ghost).y+1][(*ghost).x] != '#') {
+                if (tab[(*ghost).y+1][(*ghost).x] == ' ' || tab[(*ghost).y+1][(*ghost).x] == 'A' || tab[(*ghost).y+1][(*ghost).x] == '.' || tab[(*ghost).y+1][(*ghost).x] == 'o'){
                     directions[options] = 's';
                     options++;
                 }
-                if (tab[(*ghost).y-1][(*ghost).x] != '#') {
+                if (tab[(*ghost).y-1][(*ghost).x] == ' ' || tab[(*ghost).y-1][(*ghost).x] == 'A' || tab[(*ghost).y-1][(*ghost).x] == '.' || tab[(*ghost).y-1][(*ghost).x] == 'o'){
                     directions[options] = 'w';
                     options++;
                 }
-                if (tab[(*ghost).y][(*ghost).x+1] != '#') {
+                if (tab[(*ghost).y][(*ghost).x+1] == ' ' || tab[(*ghost).y][(*ghost).x+1] == 'A' || tab[(*ghost).y][(*ghost).x+1] == '.' || tab[(*ghost).y][(*ghost).x+1] == 'o'){
                     directions[options] = 'd';
                     options++;
                 }
-                if (tab[(*ghost).y][(*ghost).x-1] != '#') {
+                if (tab[(*ghost).y][(*ghost).x-1] == ' ' || tab[(*ghost).y][(*ghost).x-1] == 'A' || tab[(*ghost).y][(*ghost).x-1] == '.' || tab[(*ghost).y][(*ghost).x-1] == 'o'){
                     directions[options] = 'a';
                     options++;
                 }
@@ -228,19 +228,19 @@ void move_ghost(Ghost (*ghost)){
         else{
             if(tab[(*ghost).y][(*ghost).x+1] != '#' || tab[(*ghost).y][(*ghost).x-1] != '#'){
                 options = 0;
-                if (tab[(*ghost).y+1][(*ghost).x] != '#') {
+                if (tab[(*ghost).y+1][(*ghost).x] == ' ' || tab[(*ghost).y+1][(*ghost).x] == 'A' || tab[(*ghost).y+1][(*ghost).x] == '.' || tab[(*ghost).y+1][(*ghost).x] == 'o'){
                     directions[options] = 's';
                     options++;
                 }
-                if (tab[(*ghost).y-1][(*ghost).x] != '#') {
+                if (tab[(*ghost).y-1][(*ghost).x] == ' ' || tab[(*ghost).y-1][(*ghost).x] == 'A' || tab[(*ghost).y-1][(*ghost).x] == '.' || tab[(*ghost).y-1][(*ghost).x] == 'o'){
                     directions[options] = 'w';
                     options++;
                 }
-                if (tab[(*ghost).y][(*ghost).x+1] != '#') {
+                if (tab[(*ghost).y][(*ghost).x+1] == ' ' || tab[(*ghost).y][(*ghost).x+1] == 'A' || tab[(*ghost).y][(*ghost).x+1] == '.' || tab[(*ghost).y][(*ghost).x+1] == 'o'){
                     directions[options] = 'd';
                     options++;
                 }
-                if (tab[(*ghost).y][(*ghost).x-1] != '#') {
+                if (tab[(*ghost).y][(*ghost).x-1] == ' ' || tab[(*ghost).y][(*ghost).x-1] == 'A' || tab[(*ghost).y][(*ghost).x-1] == '.' || tab[(*ghost).y][(*ghost).x-1] == 'o'){
                     directions[options] = 'a';
                     options++;
                 }
@@ -429,6 +429,7 @@ void main(void){
     Ghost *pBlynk = &blynk;
     Ghost *pPink  = &pink;
     Ghost *pInk   = &ink;
+    int gameover = 0;
 
     while(1){
 
@@ -463,6 +464,7 @@ void main(void){
             clear();
             keyPressed = getch();
             move_pacman();
+            gameover = game_over();
             move_ghost(pClyde);
             move_ghost(pBlynk);
             move_ghost(pPink);
@@ -471,13 +473,14 @@ void main(void){
         else{
             clear();
             move_pacman();
+            gameover = game_over();
             move_ghost(pClyde);
             move_ghost(pBlynk);
             move_ghost(pPink);
             move_ghost(pInk);
         }
         print_tab();
-        if(game_over())
+        if(gameover)
             while(1){}
     
         clear();
