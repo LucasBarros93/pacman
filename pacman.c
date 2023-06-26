@@ -13,7 +13,7 @@
 
 char tab[ROWS][COLS];
 char keyPressed = ' ';
-int  gametime = 0;
+int  gametime = 1;
 int  points = 0;
 
 //CRIANDO E INICIANDO O PACMAN COMO UM STRUCT
@@ -319,7 +319,7 @@ void move_ghost(Ghost (*ghost)){
                 tab[(*ghost).y][(*ghost).x] = (*ghost).under;
                 (*ghost).x = 0;
                 
-                if(tab[(*ghost).y][(*ghost).x] == ' ' || tab[(*ghost).y][(*ghost).x] == '.'){
+                if(tab[(*ghost).y][(*ghost).x] == ' ' || tab[(*ghost).y][(*ghost).x] == '.' || tab[(*ghost).y][(*ghost).x] == 'o'){
                     (*ghost).under = tab[(*ghost).y][(*ghost).x];
                 }
 
@@ -330,7 +330,7 @@ void move_ghost(Ghost (*ghost)){
                 tab[(*ghost).y][(*ghost).x] = (*ghost).under;
                 (*ghost).x += 1;
                 
-                if(tab[(*ghost).y][(*ghost).x] == ' ' || tab[(*ghost).y][(*ghost).x] == '.'){
+                if(tab[(*ghost).y][(*ghost).x] == ' ' || tab[(*ghost).y][(*ghost).x] == '.' || tab[(*ghost).y][(*ghost).x] == 'o'){
                     (*ghost).under = tab[(*ghost).y][(*ghost).x];
                 }
 
@@ -342,7 +342,7 @@ void move_ghost(Ghost (*ghost)){
                 tab[(*ghost).y][(*ghost).x] = (*ghost).under;
                 (*ghost).x = COLS-1;
                 
-                if(tab[(*ghost).y][(*ghost).x] == ' ' || tab[(*ghost).y][(*ghost).x] == '.'){
+                if(tab[(*ghost).y][(*ghost).x] == ' ' || tab[(*ghost).y][(*ghost).x] == '.' || tab[(*ghost).y][(*ghost).x] == 'o'){
                     (*ghost).under = tab[(*ghost).y][(*ghost).x];
                 }
 
@@ -353,7 +353,7 @@ void move_ghost(Ghost (*ghost)){
                 tab[(*ghost).y][(*ghost).x] = (*ghost).under;
                 (*ghost).x -= 1;
                 
-                if(tab[(*ghost).y][(*ghost).x] == ' ' || tab[(*ghost).y][(*ghost).x] == '.'){
+                if(tab[(*ghost).y][(*ghost).x] == ' ' || tab[(*ghost).y][(*ghost).x] == '.' || tab[(*ghost).y][(*ghost).x] == 'o'){
                     (*ghost).under = tab[(*ghost).y][(*ghost).x];
                 }
 
@@ -365,7 +365,7 @@ void move_ghost(Ghost (*ghost)){
             tab[(*ghost).y][(*ghost).x] = (*ghost).under;          
             (*ghost).y += 1;
             
-            if(tab[(*ghost).y][(*ghost).x] == ' ' || tab[(*ghost).y][(*ghost).x] == '.'){
+            if(tab[(*ghost).y][(*ghost).x] == ' ' || tab[(*ghost).y][(*ghost).x] == '.' || tab[(*ghost).y][(*ghost).x] == 'o'){
                 (*ghost).under = tab[(*ghost).y][(*ghost).x];
             }
             else{
@@ -378,7 +378,7 @@ void move_ghost(Ghost (*ghost)){
             tab[(*ghost).y][(*ghost).x] = (*ghost).under;          
             (*ghost).y -= 1;
             
-            if(tab[(*ghost).y][(*ghost).x] == ' ' || tab[(*ghost).y][(*ghost).x] == '.'){
+            if(tab[(*ghost).y][(*ghost).x] == ' ' || tab[(*ghost).y][(*ghost).x] == '.' || tab[(*ghost).y][(*ghost).x] == 'o'){
                 (*ghost).under = tab[(*ghost).y][(*ghost).x];
             }
             else{
@@ -613,16 +613,16 @@ void main(void){
 
     while(1){
 
-        if(gametime == 20){
+        if(gametime%20 == 0 && !clyde.inGame){
             spawn_ghost(pClyde);
         }
-        if(gametime == 50){
+        if(gametime%50 == 0 && !blynk.inGame){
             spawn_ghost(pBlynk);
         }
-        if(gametime == 80){
+        if(gametime%80 == 0 && !pink.inGame){
             spawn_ghost(pPink);
         }
-        if(gametime == 110){
+        if(gametime%110 == 0 && !ink.inGame){
             spawn_ghost(pInk);
         }
 
