@@ -635,6 +635,21 @@ int isOver(void){
     return 1;
 }
 
+void save_res(void){
+    FILE *fp = fopen("res.txt", "w");
+    if (fp == NULL)
+        printf("Error opening the file");
+
+    for (int i = 0; i < ROWS; i++) {
+        for (int j = 0; j < COLS; j++) {
+            fprintf(fp, "%c", tab[i][j]);
+        }
+        fprintf(fp, "\n");
+    }
+
+    fclose(fp);
+}
+
 void main(void){
 
     curs_set (0);  // Hide Cursor 
@@ -709,8 +724,10 @@ void main(void){
             move_ghost(pInk);
         }
         print_tab();
-        if(gameover)
+        if(gameover){
+            save_res();
             while(1){}
+        }
         if(isOver()){
             hard_reset();
         }
