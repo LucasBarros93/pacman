@@ -1,20 +1,21 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>   // Funcao usleep
-#include <curses.h>   // Funcoes de tela com clear (clrscr)
+#include <curses.h>
 #include <poll.h>
 #include <time.h>
 
 #define SPEED  500000
 #define RESETCOLOR "\x1B[0m"
 
-#define ROWS  31
+#define ROWS  33
 #define COLS  28
 
 char tab[ROWS][COLS];
 char keyPressed = ' ';
 int  gametime = 1;
 int  points = 0;
+int wave = 0;
 
 //CRIANDO E INICIANDO O PACMAN COMO UM STRUCT
 typedef struct{
@@ -23,7 +24,7 @@ typedef struct{
     char dir;
 } Pacman;
 
-Pacman pac = {14, 23, 'a'};
+Pacman pac = {14, 24, 'a'};
 
 //CRIANDO E INICIANDO FANTASMAS
 typedef struct{
@@ -37,17 +38,16 @@ typedef struct{
     int powerless;
 } Ghost;
 
-Ghost clyde = {'C', 12, 14, 'a', ' ', 0, 0, 0};
-Ghost blynk = {'B', 13, 14, 'a', ' ', 0, 0, 0};
-Ghost pink  = {'P', 14, 14, 'a', ' ', 0, 0, 0};
-Ghost ink   = {'I', 15, 14, 'a', ' ', 0, 0, 0};
+Ghost clyde = {'C', 12, 15, 'a', ' ', 0, 0, 0};
+Ghost blynk = {'B', 13, 15, 'a', ' ', 0, 0, 0};
+Ghost pink  = {'P', 14, 15, 'a', ' ', 0, 0, 0};
+Ghost ink   = {'I', 15, 15, 'a', ' ', 0, 0, 0};
 
 struct pollfd mypoll = { STDIN_FILENO, POLLIN|POLLPRI };
 
 void init_tab(void){
     FILE *fp;
     long lSize;
-    char *buffer;
 
     fp = fopen ( "map.txt" , "rb" );
     if( !fp ) perror("map.txt"),exit(1);
@@ -67,6 +67,15 @@ void init_tab(void){
 void print_tab(void){
     for(int i=0; i<ROWS; i++){
         for(int j=0; j<COLS; j++){
+            if(i == 0 || i == ROWS-1){
+                if(tab[i][j] == 'O'){
+                    printf("\x1b[38;5;11m" "•");
+                    continue;
+                }
+                printf("\x1b[38;5;11m" "%c", tab[i][j]);
+                continue;
+            }
+
             if(tab[i][j] == '#'){
                 printf("\x1b[38;5;19m" "⣿");
                 continue;
@@ -433,7 +442,7 @@ void spawn_ghost(Ghost (*ghost)){
     clear();
 
     (*ghost).x = 15;
-    (*ghost).y = 11;
+    (*ghost).y = 12;
     (*ghost).inGame = 1;
 }
 
@@ -460,37 +469,64 @@ void hard_reset(void){
     
     init_tab();
     pac.x = 14;
-    pac.y = 23;
+    pac.y = 24;
     pac.dir = 'a';
 
     clyde.x = 12;
-    clyde.y = 14;    
+    clyde.y = 15;    
     clyde.dir = 'a';
     clyde.inGame = 0;
     clyde.dificult = 0;
 
     blynk.x = 13;
-    blynk.y = 14;    
+    blynk.y = 15;    
     blynk.dir = 'a';
     blynk.inGame = 0;
     blynk.dificult = 0;
 
     pink.x = 14;
-    pink.y = 14;    
+    pink.y = 15;    
     pink.dir = 'a';
     pink.inGame = 0;
     pink.dificult = 0;
 
     ink.x = 15;
-    ink.y = 14;    
+    ink.y = 15;    
     ink.dir = 'a';
     ink.inGame = 0;
     ink.dificult = 0;
 
     gametime = 1;
+    wave += 1;
 
     print_tab();
     usleep(SPEED*3); 
+}
+
+void wave_points(void){
+    int aux1;
+    int aux2;
+    
+    aux1 = points/10000;
+    tab[32][7] = aux1+'0';
+
+    aux1 = (points/1000)%10;
+    tab[32][8] = aux1+'0';
+
+    aux1 = ((points/100)%100)%10;
+    tab[32][9] = aux1+'0';
+    
+    aux1 = (((points/10)%1000)%100)%10;
+    tab[32][10] = aux1+'0';
+
+    aux1 = (((points%10000)%1000)%100)%10;
+    tab[32][11] = aux1+'0';
+
+    aux1 = wave/10;
+    tab[32][27] = aux1+'0';
+
+    aux1 = wave%10;
+    tab[32][28] = aux1+'0';
 }
 
 void pontuation_power(char food){
@@ -530,6 +566,7 @@ void pontuation_power(char food){
                 foo = move_pacman();
             }
             pontuation_power(foo);
+            wave_points();
             print_tab();
             time++;
         }
@@ -543,44 +580,44 @@ void pontuation_power(char food){
     if(food == 'C'){
         clyde.inGame = 0;
         clyde.x = 12;
-        clyde.y = 14;
+        clyde.y = 15;
         clyde.dir = 'a';
         clyde.under = ' ';
 
-        tab[14][12] = 'C';
+        tab[15][12] = 'C';
 
         points += 100;
     }
     if(food == 'B'){
         blynk.inGame = 0;
         blynk.x = 13;
-        blynk.y = 14;
+        blynk.y = 15;
         blynk.dir = 'a';
         blynk.under = ' ';
         
-        tab[14][13] = 'B';
+        tab[15][13] = 'B';
 
         points += 100;
     }
     if(food == 'P'){
         pink.inGame = 0;
         pink.x = 14;
-        pink.y = 14;
+        pink.y = 15;
         pink.dir = 'a';
         pink.under = ' ';
 
-        tab[14][14] = 'P';
+        tab[15][14] = 'P';
 
         points += 100;
     }
     if(food == 'I'){
         ink.inGame = 0;
-        ink.x = 12;
+        ink.x = 15;
         ink.y = 15;
         ink.dir = 'a';
         ink.under = ' ';
 
-        tab[14][15] = 'I';
+        tab[15][15] = 'I';
 
         points += 100;
     }
@@ -678,6 +715,7 @@ void main(void){
             hard_reset();
         }
         pontuation_power(food);
+        wave_points();
     
         clear();
         gametime++;
