@@ -15,7 +15,7 @@ char tab[ROWS][COLS];
 char keyPressed = ' ';
 int  gametime = 1;
 int  points = 0;
-int wave = 0;
+int wave = 1;
 
 //CRIANDO E INICIANDO O PACMAN COMO UM STRUCT
 typedef struct{
@@ -505,7 +505,6 @@ void hard_reset(void){
 
 void wave_points(void){
     int aux1;
-    int aux2;
     
     aux1 = points/10000;
     tab[32][7] = aux1+'0';
@@ -523,10 +522,10 @@ void wave_points(void){
     tab[32][11] = aux1+'0';
 
     aux1 = wave/10;
-    tab[32][27] = aux1+'0';
+    tab[32][26] = aux1+'0';
 
     aux1 = wave%10;
-    tab[32][28] = aux1+'0';
+    tab[32][27] = aux1+'0';
 }
 
 void pontuation_power(char food){
