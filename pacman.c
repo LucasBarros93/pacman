@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>   // Funcao usleep
+#include <unistd.h>
 #include <curses.h>
 #include <poll.h>
 #include <time.h>
@@ -15,7 +15,7 @@ char tab[ROWS][COLS];
 char keyPressed = ' ';
 int  gametime = 1;
 int  points = 0;
-int wave = 1;
+int  lvl = 1;
 
 //CRIANDO E INICIANDO O PACMAN COMO UM STRUCT
 typedef struct{
@@ -45,6 +45,7 @@ Ghost ink   = {'I', 15, 15, 'a', ' ', 0, 0, 0};
 
 struct pollfd mypoll = { STDIN_FILENO, POLLIN|POLLPRI };
 
+//LÊ O ARQUIVO DO MAPA E O TRANSFORMA NA VARIAVEL tab[ROWS][COLS]
 void init_tab(void){
     FILE *fp;
     long lSize;
@@ -64,6 +65,7 @@ void init_tab(void){
     fclose(fp);
 }
 
+//PRINTA O MAPA NA TELA, SUBSTITUINDO OS CAARACTERES PADRÕES PELOS ESPECIAIS E DANDO AS DEVIDAS CORES
 void print_tab(void){
     for(int i=0; i<ROWS; i++){
         for(int j=0; j<COLS; j++){
@@ -150,6 +152,7 @@ void print_tab(void){
     }
 }
 
+//MOVE O PACMAN, EVITA A COLIÇÃO COM AS PAREDES E REALIZA O TELEPORTE SE NECESSARIO
 char move_pacman(void){
     char food = ' ';
     if(keyPressed == 'd'){
@@ -236,6 +239,7 @@ char move_pacman(void){
     return food;
 }
 
+//MOVE O FANTASMA, EVITA COLISÃO COM AS PAREDES E ESCOLHE A DIREÇÃO DE FORMA ALEATÓRIA OU NÃO
 void move_ghost(Ghost (*ghost)){
     if((*ghost).inGame){
         int options = 1;
@@ -287,7 +291,7 @@ void move_ghost(Ghost (*ghost)){
             }
         }
         
-        //VAMO ESCOLHER A DIREÇÃO DE FORMA INTELIGENTE AGR
+        //ESCOLHENDO A DIREÇÃO DE FORMA INTELIGENTE
         int finalOptions = 0;
         char finalDirections[4];
 
@@ -316,6 +320,7 @@ void move_ghost(Ghost (*ghost)){
         }
         //SE ENTRAR NISSO AI DE CIMA O FANTASMA FICA DO MAU
 
+        //POSIÇÃO ALEATORIA ENTRE AS OPÇÕES SELECIONADAS ATÉ AQUI
         if(finalOptions == 0){
             (*ghost).dir = directions[rand()%(options)];
         }
@@ -323,6 +328,7 @@ void move_ghost(Ghost (*ghost)){
             (*ghost).dir = finalDirections[rand()%(finalOptions)];
         }
 
+        //MOVE O FANTASMA DE FATO
         if((*ghost).dir == 'd'){
             if((*ghost).x+1 > COLS-1){
                 tab[(*ghost).y][(*ghost).x] = (*ghost).under;
@@ -399,6 +405,7 @@ void move_ghost(Ghost (*ghost)){
     }
 }
 
+//TESTA A COLISÃO ENTRE O FANTASMA E O PACMAN
 int game_over(void){
    if(pac.x == clyde.x && pac.y == clyde.y){
     return 1;
@@ -415,6 +422,7 @@ int game_over(void){
    return 0;
 }
 
+//SPAWAN O FANTASMA
 void spawn_ghost(Ghost (*ghost)){
     tab[(*ghost).y][(*ghost).x] = ' ';
     print_tab();
@@ -446,6 +454,7 @@ void spawn_ghost(Ghost (*ghost)){
     (*ghost).inGame = 1;
 }
 
+//RESETA A TELA, REINICIANDO TODAS AS POCISÕES E BOLINHAS COMIDAS
 void hard_reset(void){
     clear();
     refresh();
@@ -497,13 +506,15 @@ void hard_reset(void){
     ink.dificult = 0;
 
     gametime = 1;
-    wave += 1;
+    lvl += 1;
+    points += 500;
 
     print_tab();
     usleep(SPEED*3); 
 }
 
-void wave_points(void){
+//COLOCA A PONTUAÇÃO E O LEVEL ATUAL NO TABULEIRO
+void lvl_points(void){
     int aux1;
     
     aux1 = points/10000;
@@ -521,18 +532,20 @@ void wave_points(void){
     aux1 = (((points%10000)%1000)%100)%10;
     tab[32][11] = aux1+'0';
 
-    aux1 = wave/10;
+    aux1 = lvl/10;
     tab[32][26] = aux1+'0';
 
-    aux1 = wave%10;
+    aux1 = lvl%10;
     tab[32][27] = aux1+'0';
 }
 
+//SOMA OS PONTOS ADQUIRIDOS E GERENCIA O "SUPER PACMAN"
 void pontuation_power(char food){
     if(food == '.'){
         points += 10;
     }
 
+    //"SUPER PACMAN", BASICAMENTE É IGUAL A MAIN, CONTUDO SEM O game_over() E DURANDO 50 MOVIMENTOS
     if(food == 'o'){
         Ghost *pClyde = &clyde;
         Ghost *pBlynk = &blynk;
@@ -565,7 +578,7 @@ void pontuation_power(char food){
                 foo = move_pacman();
             }
             pontuation_power(foo);
-            wave_points();
+            lvl_points();
             print_tab();
             time++;
         }
@@ -623,6 +636,7 @@ void pontuation_power(char food){
 
 }
 
+//TESTA SE ACABARAM AS BOLINHAS DO MAPA
 int isOver(void){
     for(int i=0; i<ROWS; i++){
         for(int j=0; j<COLS; j++){
@@ -634,6 +648,7 @@ int isOver(void){
     return 1;
 }
 
+//SALVA O MAPA FINAL EM UM OUTRO ARQUIVO
 void save_res(void){
     FILE *fp = fopen("res.txt", "w");
     if (fp == NULL)
@@ -649,16 +664,13 @@ void save_res(void){
     fclose(fp);
 }
 
+//EXECUTA O PROGRAMA
 void main(void){
-
     curs_set (0);  // Hide Cursor 
 
     initscr();
 
-    //NÃO TO ENTENDENDO LEGAL
     keypad(stdscr, TRUE);
-    //nodelay(stdscr, TRUE);
-    //ATÉ AQUI
 
     noecho();
 
@@ -675,8 +687,10 @@ void main(void){
     int gameover = 0;
     char food = ' ';
 
+    //LOOP PRINCIPAL
     while(1){
-
+        
+        //TEMPOS DE SPAWN E INTELIGENCIA DOS FANTASMAS
         if(gametime%20 == 0 && !clyde.inGame){
             spawn_ghost(pClyde);
         }
@@ -723,6 +737,8 @@ void main(void){
             move_ghost(pInk);
         }
         print_tab();
+
+        //TESTE DE PÓS MOVIMENTO
         if(gameover){
             save_res();
             while(1){}
@@ -731,7 +747,7 @@ void main(void){
             hard_reset();
         }
         pontuation_power(food);
-        wave_points();
+        lvl_points();
     
         clear();
         gametime++;
