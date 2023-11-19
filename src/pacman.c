@@ -50,7 +50,7 @@ void init_tab(void){
     FILE *fp;
     long lSize;
 
-    fp = fopen ( "map.txt" , "rb" );
+    fp = fopen ( "./map/map.txt" , "rb" );
     if( !fp ) perror("map.txt"),exit(1);
 
     fseek( fp , 0L , SEEK_END);
@@ -650,7 +650,7 @@ int isOver(void){
 
 //SALVA O MAPA FINAL EM UM OUTRO ARQUIVO
 void save_res(void){
-    FILE *fp = fopen("res.txt", "w");
+    FILE *fp = fopen("./map/result.txt", "w");
     if (fp == NULL)
         printf("Error opening the file");
 
