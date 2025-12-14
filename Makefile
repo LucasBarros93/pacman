@@ -1,5 +1,6 @@
 all:
-	gcc ./src/pacman.c -o ./bin/game -lcurses
+	mkdir -p ./bin
+	gcc ./src/pacman.c -o ./bin/game -lncurses
 
 run:
 	./bin/game
