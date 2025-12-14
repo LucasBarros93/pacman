@@ -67,6 +67,7 @@ void init_tab(void){
 
 //PRINTA O MAPA NA TELA, SUBSTITUINDO OS CAARACTERES PADRÕES PELOS ESPECIAIS E DANDO AS DEVIDAS CORES
 void print_tab(void){
+    printf("\x1b[H");  // move o cursor para 0,0 (home)
     for(int i=0; i<ROWS; i++){
         for(int j=0; j<COLS; j++){
             if(i == 0 || i == ROWS-1){
@@ -149,6 +150,7 @@ void print_tab(void){
         }
 
         printf("\n\r");
+        fflush(stdout);
     }
 }
 
