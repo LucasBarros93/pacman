@@ -1,6 +1,6 @@
 all:
 	mkdir -p ./bin
-	gcc ./src/pacman.c -o ./bin/game -lncurses
+	gcc -O2 -static -s ./src/pacman.c -o ./bin/game -lncursesw -ltinfo
 
 run:
 	./bin/game

@@ -1,0 +1,5 @@
+.git
+.gitignore
+README.md
+bin
+/map/result.txt
